@@ -1,0 +1,28 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Wpis nr 1 - Inwokacja",
+      "datatime": "September 19, 2022 11:17:36 AM",
+      "body": "Litwo, Ojczyzno moja! ty jesteś jak zdrowie, Ile cię trzeba cenić, ten tylko się dowie, Kto cię stracił. Dziś piękność twą w całej ozdobieWidzę i opisuję, bo tęsknię po tobie. Panno święta, co Jasnej bronisz Częstochowy I w Ostrej świecisz Bramie! Ty, co gród zamkowy Nowogródzki ochraniasz z jego wiernym ludem!"
+    },
+    {
+      "id": 2,
+      "title": "Wpis nr 2 - Na lipę",
+      "datatime": "September 19, 2022 11:17:36 AM",
+      "body": "Gościu, siądź pod mym liściem, a odpoczni sobie! Nie dojdzie cię tu słońce, przyrzekam ja tobie, Choć się nawysszeń wzbije, a proste promienie. Ściągną pod swoje drzewa rozstrzelane cienie."
+    },
+    {
+      "id": 3,
+      "title": "Wpis nr 3 - Lokomotywa",
+      "datatime": "September 19, 2022 11:17:36 AM",
+      "body": "Stoi na stacji lokomotywa, Ciężka, ogromna i pot z niej spływa: Tłusta oliwa. Stoi i sapie, dyszy i dmucha, Żar z rozgrzanego jej brzucha bucha: Uch - jak gorąco! Puff - jak gorąco! Uff - jak gorąco!"
+    },
+    {
+      "id": 4,
+      "title": "Wpis numer 4 - test",
+      "datatime": "September 20, 2022 12:41:47 PM",
+      "body": "możliwość edycji 123"
+    }
+  ]
+}

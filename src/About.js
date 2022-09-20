@@ -4,7 +4,7 @@ const About = () => {
   return (
     <main>
         <h2>About</h2>
-        <p style={{marginTop:"1rem"}}>This is one of my learning project showing the single page app made in React.</p>
+        <p style={{marginTop:"1rem"}}>This is one of my learning projects showing the single page app made in React.</p>
     </main>
   )
 }

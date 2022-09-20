@@ -28,7 +28,6 @@ body {
 
 .App {
   width: 100%;
-  max-width: 3600px;
   height: 100vh;
   display: flex;
   flex-direction: column;

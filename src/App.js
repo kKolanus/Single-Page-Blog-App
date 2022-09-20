@@ -4,43 +4,41 @@ import NewPost from './NewPost';
 import PostPage from './PostPage';
 import About from './About';
 import Missing from './Missing';
+import EditPost from './EditPost';
 import {Route, Routes, useNavigate} from 'react-router-dom';
 import {useState, useEffect} from 'react';
 import {format} from 'date-fns';
+import api from './api/posts'
 
 function App() {
 
-  const[posts, setPosts] = useState([
-    {
-      id: 1,
-      title: "Wpis nr 1 - Inwokacja",
-      datetime: "September 19, 2022 11:17:36 AM",
-      body: "Litwo, Ojczyzno moja! ty jesteś jak zdrowie, Ile cię trzeba cenić, ten tylko się dowie, Kto cię stracił. Dziś piękność twą w całej ozdobieWidzę i opisuję, bo tęsknię po tobie. Panno święta, co Jasnej bronisz Częstochowy I w Ostrej świecisz Bramie! Ty, co gród zamkowy Nowogródzki ochraniasz z jego wiernym ludem!"
-    },
-    {
-      id: 2,
-      title: "Wpis nr 2 - Na lipę",
-      datetime: "September 19, 2022 11:17:36 AM",
-      body: "Gościu, siądź pod mym liściem, a odpoczni sobie! Nie dojdzie cię tu słońce, przyrzekam ja tobie, Choć się nawysszeń wzbije, a proste promienie. Ściągną pod swoje drzewa rozstrzelane cienie."
-    },
-    {
-      id: 3,
-      title: "Wpis nr 3 - Lokomotywa",
-      datetime: "September 19, 2022 11:17:36 AM",
-      body: "Stoi na stacji lokomotywa, Ciężka, ogromna i pot z niej spływa: Tłusta oliwa. Stoi i sapie, dyszy i dmucha, Żar z rozgrzanego jej brzucha bucha: Uch - jak gorąco! Puff - jak gorąco! Uff - jak gorąco!"
-    },
-    {
-      id: 4,
-      title: "Wpis nr 4 - test krótkiego wpisu",
-      datetime: "September 19, 2022 11:17:36 AM",
-      body: "Jestem krótkim wpisem"
-    }
-  ])
+  const[posts, setPosts] = useState([])
   const[search, setSearch] = useState('');
   const[searchResults, setSearchResults] = useState([]);
   const[postTitle, setPostTitle] = useState('');
   const[postBody, setPostBody] = useState('');
   const navigate = useNavigate();
+  const[editTitle, setEditTitle] = useState('');
+  const[editBody, setEditBody] = useState('');
+
+  useEffect(() => {
+    const fetchPosts = async () =>{
+      try{
+        const response = await api.get('/posts');
+        setPosts(response.data);
+      } catch (err) {
+        if(err.response){
+          //Not in the 200 response range
+          console.log(err.response.data);
+          console.log(err.response.status);
+          console.log(err.response.headers);
+        } else {
+          console.log(`Error: ${err.message}`)
+        }
+      }
+    }
+    fetchPosts();
+  },[])
 
   useEffect(()=>{
     const filteredResults = posts.filter(post=>(
@@ -51,22 +49,46 @@ function App() {
     setSearchResults(filteredResults.reverse());
   },[posts, search])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const id = posts.length ? posts[posts.length-1].id + 1 : 1;
-    const datatime = format(new Date(), 'MMMM dd, yyyy pp');
+    const datatime = await format(new Date(), 'MMMM dd, yyyy pp');
     const newPost = {id, title: postTitle, datatime, body: postBody};
-    const allPosts = [...posts, newPost];
-    setPosts(allPosts);
-    setPostTitle('');
-    setPostBody('');
-    navigate('/');
+    try {
+      const response = await api.post('/posts', newPost);
+      const allPosts = [...posts, response.data];
+      setPosts(allPosts);
+      setPostTitle('');
+      setPostBody('');
+      navigate('/');
+    } catch (err) {
+      console.log(`Error: ${err.message}`)
+    }
+  }
+
+  const handleEdit = async (id) => {
+    const datatime = await format(new Date(), 'MMMM dd, yyyy pp');
+    const updatedPost = {id, title: editTitle, datatime, body: editBody};
+    try {
+      const response = await api.put(`/posts/${id}`, updatedPost)
+      setPosts(posts.map(post=> post.id === id ? {...response.data} : post));
+      setEditTitle('');
+      setEditBody('');
+      navigate('/');
+    } catch (err) {
+      console.log(`Error: ${err.message}`)
+    }
   }
   
-  const handleDelete = (id) => {
-    const postsList = posts.filter(post => post.id !== id);
-    setPosts(postsList);
-    navigate('/');
+  const handleDelete = async (id) => {
+    try{
+      await api.delete(`/posts/${id}`)
+      const postsList = posts.filter(post => post.id !== id);
+      setPosts(postsList);
+      navigate('/');
+    } catch (err) {
+      console.log(`Error: ${err.message}`)
+    }
   }
 
   //npm i react-router-dom -S
@@ -77,26 +99,38 @@ function App() {
         <Route path="/" element={<Layout
         search={search}
         setSearch={setSearch}/>}>
+          
           <Route
           index element={<Home posts={searchResults}/>}/>
           
-          <Route path="post">
-            <Route index element={<NewPost
-            handleSubmit={handleSubmit}
-            postTitle={postTitle}
-            setPostTitle={setPostTitle}
-            postBody={postBody}
-            setPostBody={setPostBody}
-            />}/>
+            <Route path="post">
+              <Route index element={<NewPost
+              handleSubmit={handleSubmit}
+              postTitle={postTitle}
+              setPostTitle={setPostTitle}
+              postBody={postBody}
+              setPostBody={setPostBody}
+              />}/>
 
-          <Route path=":id" element={<PostPage
-            posts={posts}
-            handleDelete={handleDelete}
-          />} />
-          </Route>
-          <Route path="about" element={<About />} />
-          <Route path="*" element={<Missing />} />
-          </Route>
+              <Route path=":id" element={<PostPage
+              posts={posts}
+              handleDelete={handleDelete}
+              />}/>
+            </Route>
+            <Route path="edit/:id">
+            <Route index element={<EditPost
+              handleEdit={handleEdit}
+              posts={posts}
+              editTitle={editTitle}
+              setEditTitle={setEditTitle}
+              editBody={editBody}
+              setEditBody={setEditBody}
+              />}/>
+              </Route>
+
+            <Route path="about" element={<About />} />
+            <Route path="*" element={<Missing />} />
+        </Route>
       </Routes>
   );
 }

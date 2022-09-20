@@ -2,7 +2,6 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 
 const Nav = ({search, setSearch}) => {
-  console.log(search);
   return (
     <nav className='Nav'>
         <form 
