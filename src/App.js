@@ -9,6 +9,8 @@ import {Route, Routes, useNavigate} from 'react-router-dom';
 import {useState, useEffect} from 'react';
 import {format} from 'date-fns';
 import api from './api/posts'
+import useWindowSize from './hooks/useWindowSize.js';
+import useAxiosFetch from './hooks/useAxiosFetch';
 
 function App() {
 
@@ -20,25 +22,13 @@ function App() {
   const navigate = useNavigate();
   const[editTitle, setEditTitle] = useState('');
   const[editBody, setEditBody] = useState('');
+  const { width } = useWindowSize();
+  
+  const { data, fetchError, isLoading } = useAxiosFetch('http://localhost:3500/posts');
 
-  useEffect(() => {
-    const fetchPosts = async () =>{
-      try{
-        const response = await api.get('/posts');
-        setPosts(response.data);
-      } catch (err) {
-        if(err.response){
-          //Not in the 200 response range
-          console.log(err.response.data);
-          console.log(err.response.status);
-          console.log(err.response.headers);
-        } else {
-          console.log(`Error: ${err.message}`)
-        }
-      }
-    }
-    fetchPosts();
-  },[])
+  useEffect(()=>{
+    setPosts(data);
+  },[data])
 
   useEffect(()=>{
     const filteredResults = posts.filter(post=>(
@@ -52,7 +42,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const id = posts.length ? posts[posts.length-1].id + 1 : 1;
-    const datatime = await format(new Date(), 'MMMM dd, yyyy pp');
+    const datatime = format(new Date(), 'MMMM dd, yyyy pp');
     const newPost = {id, title: postTitle, datatime, body: postBody};
     try {
       const response = await api.post('/posts', newPost);
@@ -67,7 +57,7 @@ function App() {
   }
 
   const handleEdit = async (id) => {
-    const datatime = await format(new Date(), 'MMMM dd, yyyy pp');
+    const datatime = format(new Date(), 'MMMM dd, yyyy pp');
     const updatedPost = {id, title: editTitle, datatime, body: editBody};
     try {
       const response = await api.put(`/posts/${id}`, updatedPost)
@@ -90,18 +80,22 @@ function App() {
       console.log(`Error: ${err.message}`)
     }
   }
-
-  //npm i react-router-dom -S
+  // npm i react-router-dom -S
   // crtl+d - zaznacz wszystkie słowa
   return (
 
       <Routes>
         <Route path="/" element={<Layout
+        width={width}
         search={search}
-        setSearch={setSearch}/>}>
+        setSearch={setSearch}
+        />}>
           
           <Route
-          index element={<Home posts={searchResults}/>}/>
+          index element={<Home 
+          fetchError={fetchError}
+          isLoading={isLoading}
+          posts={searchResults}/>}/>
           
             <Route path="post">
               <Route index element={<NewPost
